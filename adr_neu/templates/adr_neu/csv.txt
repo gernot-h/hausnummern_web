@@ -1,0 +1,2 @@
+{% load l10n %}{% for stadtteil, nummern in adressen %}{% for nummer in nummern %}{{ stadtteil.name }};{{ nummer.strasse }};{{ nummer.nummer }};{{ nummer.laenge|unlocalize }};{{ nummer.breite|unlocalize }}
+{% endfor %}{% endfor %}

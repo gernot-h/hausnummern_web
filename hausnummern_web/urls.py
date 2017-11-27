@@ -16,6 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from adr_neu import views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^liste/(?P<liste_name>(.*))$', views.show_liste, name='show_liste'),
+    url(r'^download/(?P<liste_name>(.*))$', views.download_liste, name='download_liste'),
+    url(r'^sync/(?P<liste_name>(.*))$', views.overpass_update, name='sync_liste'),
+    url(r'^$', views.show_listen, name='show_listen'),
 ]

@@ -1,0 +1,4 @@
+*.pyc
+migrations
+db.sqlite3
+django-secret-key.txt

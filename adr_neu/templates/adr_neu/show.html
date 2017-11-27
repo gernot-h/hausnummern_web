@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head lang="de">
+    <meta charset="UTF-8">
+    <title>Hausnummern Landshut</title>
+    <link rel="stylesheet" href="{% static 'adr_neu/style.css' %}" type="text/css" />
+</head>
+<body>
+<div style="position: relative; left: -50%; float: right; overflow: visible; margin: 2em 0;">
+    <div style="position: relative; left: 50%;">
+        <div class="content">
+            <h1>{{ liste_name }}</h1>
+	    
+	    <p><a href="/sync/{{ liste_name }}">Abgleich mit OpenStreetMap</a></p> 
+
+	    <p>Download komplette Liste: <a href="/download/{{ liste_name }}?format=csv">csv</a>
+	       <a href="/download/{{ liste_name }}?format=osm">osm</a>
+	       <a href="/download/{{ liste_name }}?format=gpx">gpx</a>
+	    </p>
+
+            <form action="/adr_neu/save" method="post">
+                {% csrf_token %}
+                <input type="hidden" value="{{ liste.name }}" name="liste_name">
+		{% for stadtteil, nummern  in adressen %}
+                <h2>Stadtteil: {{ stadtteil.name }}</h2> 
+
+		<p>Download als <a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=csv">csv</a>
+		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=osm">osm</a>
+		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=gpx">gpx</a>
+		</p>
+                <table>
+                    <tr>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Adresse</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Länge</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Breite</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">in OSM?</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Overpass</label></th>
+                    </tr>
+
+                    {% for nummer in nummern %}
+		    <tr>
+                        <td>{{ nummer.strasse }} {{ nummer.nummer }}</td>
+                        <td>{{ nummer.laenge }}</td>
+                        <td>{{ nummer.breite }}</td>
+                        <td>{{ nummer.status }}</td>
+                        <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
+		    </tr>
+                    {% endfor %}
+                </table>
+		{% endfor %}
+                <input type="submit" value="Speichern" style="float: right;"/>
+
+                <div style="clear: both;"></div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

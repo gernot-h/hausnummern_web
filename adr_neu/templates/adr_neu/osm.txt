@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' upload='true' generator='hausnummern-konverter-landshut'>
+{% for stadtteil, nummern in adressen %}{% for nummer in nummern %}
+  <node id='-{{ nummer.counter }}' lat='{{ nummer.breite }}' lon='{{ nummer.laenge }}'>
+    <tag k='addr:housenumber' v='{{ nummer.nummer }}' />
+    <tag k='addr:street' v='{{ nummer.strasse }}' />
+  </node>
+{% endfor %}{% endfor %}
+</osm>

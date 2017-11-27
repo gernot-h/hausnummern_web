@@ -1,0 +1,14 @@
+[out:json][timeout:25];
+{# area of Landshut #}
+area(2663882467)->.searchArea;
+(
+  {% for nummer in adressen %}
+  node["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
+  way["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
+  rel["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
+  {% endfor %}
+);
+out center;
+// out body;
+// >;
+// out skel qt;

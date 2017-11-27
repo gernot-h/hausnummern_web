@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head lang="de">
+    <meta charset="UTF-8">
+    <title>Hausnummern Landshut</title>
+    <link rel="stylesheet" href="{% static 'adr_neu/style.css' %}" type="text/css" />
+</head>
+<body>
+<div style="position: relative; left: -50%; float: right; overflow: visible; margin: 2em 0;">
+    <div style="position: relative; left: 50%;">
+        <div class="content">
+            <h1>Hausnummern Landshut</h1>
+                {% csrf_token %}
+		{% for liste in listen %}
+                <h2><a href="/liste/{{ liste.name }}">{{ liste.name }}</a></h2>
+		{% endfor %}
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
