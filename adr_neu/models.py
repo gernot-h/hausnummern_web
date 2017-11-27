@@ -60,10 +60,10 @@ class Hausnummer(models.Model):
 		choices = (
 			(STATUS_UNBEKANNT, "??"),
 			(STATUS_FEHLT, "fehlt in OSM"),
-			(STATUS_VORHANDEN, "in OSM vorhanden"),
+			(STATUS_VORHANDEN, "vorhanden"),
 			(STATUS_ERLEDIGT, "erledigt"),
 			(STATUS_POS_DIFF, "Position abweichend"),
-			(STATUS_OSM_VERT, "OSM-Inkonsistenz: Objekte verstreut"),
+			(STATUS_OSM_VERT, "OSM-Objekte verstreut!"),
 		)
 	)
 	

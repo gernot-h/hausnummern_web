@@ -2,10 +2,10 @@
 {# area of Landshut #}
 area(2663882467)->.searchArea;
 (
-  {% for nummer in adressen %}
-  node["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
-  way["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
-  rel["addr:housenumber"="{{ nummer.nummer }}"]["addr:street"="{{ nummer.strasse }}"](area.searchArea);
+  {% for strasse, nummer in adressen.keys %}
+  node["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
+  way["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
+  rel["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
   {% endfor %}
 );
 out center;

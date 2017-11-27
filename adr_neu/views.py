@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseServerError, StreamingHttpResponse
 from django.template import loader
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from adr_neu.models import Liste, Stadtteil
+from adr_neu.models import Liste, Stadtteil, Hausnummer
 
 
 def show_listen(request):
@@ -37,13 +37,14 @@ def do_overpass_update(stadtteile):
 		yield "<h3>STADTTEIL %s</h3>\n" % stadtteil.name
 
 		l = {}
-		osm_koords={}
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
-				l.append({'strasse': strasse.name, 'nummer': nummer.nummer, 'obj': nummer})
+				l[(strasse.name, nummer.nummer)] = nummer
+
 		yield "Anfrage: %i Adressen<br/>\n" % len(l) 
 		params = ({ "data": t.render({'adressen': l}) })
 		res = requests.post("http://overpass-api.de/api/interpreter", data=params)
+		res.encoding="utf-8"
 		try:
 			res = json.loads(res.text)
 		except Exception:
@@ -53,33 +54,43 @@ def do_overpass_update(stadtteile):
 			yield "</tt></p>"
 			return
 
-		yield "Antwort: %i Einträge<b/>\n" % len(res['elements']) 
+		yield "Antwort: %i Einträge<br/>\n" % len(res['elements']) 
+		osm_koords={}
 		for result in res['elements']:
-			#print(result)
 			if "center" in result.keys():
 				osm_lat = result["center"]["lat"]
 				osm_lon = result["center"]["lon"]
 			else:
 				osm_lat = result["lat"]
 				osm_lon = result["lon"]
-			osm_street = result["tags"]["addr:street"]
-			osm_number = result["tags"]["addr:housenumber"]
-			if (osm_street, osm_number) in osm_koords.keys():
-				osm_koords[(osm_street, osm_number)].append((osm_lat, osm_lon))
-				if (abs(osm_lat-osm_koords[(osm_street, osm_number)][0][0])>0.00013 or 
-				    abs(osm_lon-osm_koords[(osm_street, osm_number)][0][1]>0.0002)): # ca. 15m
-					yield "%s %s prüfen!<br/>" % (osm_street, osm_number)
-					pass
+			strasse = result["tags"]["addr:street"]
+			nummer = result["tags"]["addr:housenumber"]
+			if (strasse, nummer) in osm_koords.keys():
+				osm_koords[(strasse, nummer)].append((osm_lat, osm_lon))
+				if (abs(osm_lat-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
+				    abs(osm_lon-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
+					yield "OSM-Inkonsistenz: verstreute Objekte für %s %s!<br/>" % (strasse, nummer)
+					if l[(strasse, nummer)]!=Hausnummer.STATUS_ERLEDIGT:
+						l[(strasse, nummer)].status=Hausnummer.STATUS_OSM_VERT
+						l[(strasse, nummer)].save()
 			else:
-				osm_koords[(osm_street, osm_number)]=[(osm_lat, osm_lon)]
+				osm_koords[(strasse, nummer)]=[(osm_lat, osm_lon)]
 				
-		for (street, num) in osm_koords.keys():
-			anzahl = len(osm_koords[(street, num)])
+		for (strasse, nummer) in osm_koords.keys():
+			if l[(strasse, nummer)].status in (Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_OSM_VERT):
+				continue
+			anzahl = len(osm_koords[(strasse, nummer)])
 			if anzahl>1:
-				(lat_avg, lon_avg) = reduce (lambda a,b: (a[0]+b[0], a[1]+b[1]), osm_koords[(street, num)])
+				(lat_avg, lon_avg) = reduce (lambda a,b: (a[0]+b[0], a[1]+b[1]), osm_koords[(strasse, nummer)])
 				(lat_avg, lon_avg) = (lat_avg/anzahl, lon_avg/anzahl)
-				osm_koords[(street, num)]=[(lat_avg, lon_avg)]
-			
+				osm_koords[(strasse, nummer)]=[(lat_avg, lon_avg)]
+			if (abs(l[(strasse, nummer)].breite-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
+			    abs(l[(strasse, nummer)].laenge-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
+				l[(strasse, nummer)].status=Hausnummer.STATUS_POS_DIFF
+			else:
+				l[(strasse, nummer)].status=Hausnummer.STATUS_VORHANDEN
+			l[(strasse, nummer)].save()
+
 	yield "<h3>Update erfolgreich abgeschlossen</h3>\n"
 
 def overpass_update(request, liste_name):
@@ -90,7 +101,6 @@ def overpass_update(request, liste_name):
 def show_liste(request, liste_name):
 	liste = get_object_or_404(Liste, pk=liste_name)
 	adressen = prepare_adressen(liste)
-#	overpass_update(liste)
 
 	return render(
 		request,
