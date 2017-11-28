@@ -40,11 +40,11 @@
 
                     {% for nummer in nummern %}
 		    <tr>
-                        <td>{{ nummer.strasse }} {{ nummer.nummer }}</td>
-                        <td>{{ nummer.laenge }}</td>
-                        <td>{{ nummer.breite }}</td>
-                        <td>{{ nummer.status }}</td>
-                        <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
+                        <td>{{ nummer.nummer }}</td>
+                        <td>{{ nummer.nummer.laenge }}</td>
+                        <td>{{ nummer.nummer.breite }}</td>
+                        <td>{{ nummer.nummer.get_status_display }}</td>
+                        <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
 		    </tr>
                     {% endfor %}
                 </table>

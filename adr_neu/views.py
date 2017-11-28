@@ -18,14 +18,11 @@ def prepare_adressen(liste, stadtteile=None):
 	adressen = [] 
 	if stadtteile==None:
 		stadtteile = liste.stadtteile.order_by('name').all()
-	counter = 1
 	for stadtteil in stadtteile:
 		l = []
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
-				l.append({'strasse': strasse.name, 'nummer': nummer.nummer, 
-				  'laenge': nummer.laenge, 'breite': nummer.breite, 'status': nummer.get_status_display(), 'counter': counter})
-				counter+=1
+				l.append({'strasse': strasse, 'nummer': nummer})
 		adressen.append([stadtteil, l])
 	return adressen
 
