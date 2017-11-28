@@ -25,9 +25,9 @@
 		{% for stadtteil, nummern  in adressen %}
                 <h2>Stadtteil: {{ stadtteil.name }}</h2> 
 
-		<p>Download als <a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=csv">csv</a>
-		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=osm">osm</a>
-		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=gpx">gpx</a>
+		<p>Download TODOs als <a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=csv&filter=todo">csv</a>
+		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=osm&filter=todo">osm</a>
+		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=gpx&filter=todo">gpx</a>
 		</p>
                 <table>
                     <tr>

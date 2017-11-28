@@ -14,7 +14,7 @@ def show_listen(request):
 		}
 	)
 
-def prepare_adressen(liste, stadtteile=None):
+def prepare_adressen(liste, stadtteile=None, list_filter=None):
 	adressen = [] 
 	if stadtteile==None:
 		stadtteile = liste.stadtteile.order_by('name').all()
@@ -22,6 +22,11 @@ def prepare_adressen(liste, stadtteile=None):
 		l = []
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
+				if (
+				  list_filter=="todo" and 
+				  nummer.status in (Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_VORHANDEN)
+				):
+					continue
 				l.append({'strasse': strasse, 'nummer': nummer})
 		adressen.append([stadtteil, l])
 	return adressen
@@ -116,6 +121,11 @@ def download_liste(request, liste_name):
 	else:
 		get_format = "csv"
 
+	if "filter" in request.GET.keys():
+		get_filter = request.GET["filter"]
+	else:
+		get_filter = None
+
 	if "stadtteil" in request.GET.keys():	
 		get_stadtteil = request.GET["stadtteil"]
 		stadtteile = get_list_or_404(Stadtteil, name=get_stadtteil)
@@ -124,7 +134,7 @@ def download_liste(request, liste_name):
 		stadtteile = None
 		filename = "hausnummern-la-%s.%s" % (liste_name, get_format)
 
-	adressen = prepare_adressen(liste, stadtteile)
+	adressen = prepare_adressen(liste, stadtteile, get_filter)
 	
 	if get_format=="csv":
 		response = HttpResponse(content_type='text/csv')
