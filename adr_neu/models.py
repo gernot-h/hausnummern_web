@@ -1,34 +1,9 @@
 from django.db import models
 import csv, codecs
 
-class Liste(models.Model):
-	name = models.CharField(max_length=30, primary_key=True)
-	import_file = models.FileField(blank=True, null=True)
-	def __str__(self):
-		return self.name
-	def save(self, *args, **kwargs):
-		if (self.import_file.name==None):
-			super(Liste, self).save(*args, **kwargs)
-		else:
-			print ("import file uploaded", self.import_file.name)
-			for l in self.import_file:
-				(stadtteil, strasse, nummer, laenge, breite) = codecs.decode(l).strip().split(";")
-				(stadtteil_o, created) = self.stadtteile.get_or_create(name=stadtteil, liste=self)
-				if created:
-					print (stadtteil, "created")
-				(strasse_o, created) = stadtteil_o.strassen.get_or_create(name=strasse, stadtteil=stadtteil_o)
-				if created:
-					print (strasse, "created")
-				(nummer_o, created) = strasse_o.nummern.get_or_create(nummer=nummer, 
-				  defaults={'laenge': laenge, 'breite': breite})
-				if not created:
-					nummer_o.laenge = laenge
-					nummer_o.breite = breite
-					nummer_o.save()
 
 class Stadtteil(models.Model):
 	name = models.CharField(max_length=30, primary_key=True)
-	liste = models.ForeignKey(Liste, related_name='stadtteile')
 	def __str__(self):
 		return self.name
 
@@ -66,6 +41,46 @@ class Hausnummer(models.Model):
 			(STATUS_OSM_VERT, "OSM-Objekte verstreut!"),
 		)
 	)
+	GIS_NEU = "NEW"
+	GIS_VERSCHOBEN = "CHNG"
+	GIS_GELOESCHT = "DEL"
+	gis_status = models.CharField(
+		max_length = 4,
+		choices = (
+			(GIS_NEU, "neu"),
+			(GIS_VERSCHOBEN, "verschoben"),
+			(GIS_GELOESCHT, "gelöscht"),
+		)
+	)
 	
 	def __str__(self):
 		return str(self.strasse)+" "+self.nummer
+
+class Liste(models.Model):
+	typ = models.CharField(
+		max_length = 4,
+		choices = (
+			(Hausnummer.GIS_NEU, "Neu"),
+			(Hausnummer.GIS_VERSCHOBEN, "Verschoben"),
+			(Hausnummer.GIS_GELOESCHT, "Gelöscht"),
+		)
+	) 
+	import_file = models.FileField()
+
+	def save(self, *args, **kwargs):
+		print ("import file uploaded", self.import_file.name)
+		for l in self.import_file:
+			(stadtteil, strasse, nummer, laenge, breite) = codecs.decode(l).strip().split(";")
+			(stadtteil_o, created) = Stadtteil.objects.get_or_create(name=stadtteil)
+			if created:
+				print (stadtteil, "created")
+			(strasse_o, created) = stadtteil_o.strassen.get_or_create(name=strasse, stadtteil=stadtteil_o)
+			if created:
+				print (strasse, "created")
+			(nummer_o, created) = strasse_o.nummern.get_or_create(nummer=nummer, 
+			  defaults={'laenge': laenge, 'breite': breite, 'gis_status': self.typ })
+			if not created:
+				nummer_o.laenge = laenge
+				nummer_o.breite = breite
+				nummer_o.gis_status = self.typ
+				nummer_o.save()

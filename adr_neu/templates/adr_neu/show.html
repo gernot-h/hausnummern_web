@@ -12,12 +12,6 @@
         <div class="content">
             <h1>{{ liste_name }}</h1>
 	    
-	    <p><a href="/sync/{{ liste_name }}">Abgleich mit OpenStreetMap</a></p> 
-
-	    <p>Download komplette Liste: <a href="/download/{{ liste_name }}?format=csv">csv</a>
-	       <a href="/download/{{ liste_name }}?format=osm">osm</a>
-	       <a href="/download/{{ liste_name }}?format=gpx">gpx</a>
-	    </p>
 
             <form action="/adr_neu/save" method="post">
                 {% csrf_token %}
@@ -25,15 +19,24 @@
 		{% for stadtteil, nummern  in adressen %}
                 <h2>Stadtteil: {{ stadtteil.name }}</h2> 
 
-		<p>Download TODOs als <a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=csv&filter=todo">csv</a>
-		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=osm&filter=todo">osm</a>
-		<a href="/download/{{ liste_name }}?stadtteil={{ stadtteil.name|urlencode }}&format=gpx&filter=todo">gpx</a>
+	    	<p>
+		  <a href="/sync/{{ stadtteil.name }}">Abgleich mit OpenStreetMap</a><br/>
+		  Download TODOs neu: <a href="/download/{{ stadtteil.name|urlencode }}?format=csv&typ=todo-NEW">csv</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=osm&typ=todo-NEW">osm</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=gpx&typ=todo-NEW">gpx</a><br/>
+		  Download TODOs verschoben: <a href="/download/{{ stadtteil.name|urlencode }}?format=csv&typ=todo-CHNG">csv</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=osm&typ=todo-CHNG">osm</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=gpx&typ=todo-CHNG">gpx</a><br/>
+		  Download TODOs gelöscht: <a href="/download/{{ stadtteil.name|urlencode }}?format=csv&typ=todo-DEL">csv</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=osm&typ=todo-DEL">osm</a>
+		  <a href="/download/{{ stadtteil.name|urlencode }}?format=gpx&typ=todo-DEL">gpx</a>
 		</p>
-                <table>
+                <table border>
                     <tr>
                         <th style="vertical-align: bottom;"><label for="Nummer">Adresse</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">Länge</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">Breite</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">im GIS:</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">in OSM?</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">Overpass</label></th>
                     </tr>
@@ -43,6 +46,7 @@
                         <td>{{ nummer.nummer }}</td>
                         <td>{{ nummer.nummer.laenge }}</td>
                         <td>{{ nummer.nummer.breite }}</td>
+                        <td>{{ nummer.nummer.get_gis_status_display }}</td>
                         <td>{{ nummer.nummer.get_status_display }}</td>
                         <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
 		    </tr>

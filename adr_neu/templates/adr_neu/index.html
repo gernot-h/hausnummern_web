@@ -12,10 +12,12 @@
         <div class="content">
             <h1>Hausnummern Landshut</h1>
                 {% csrf_token %}
-		{% for liste in listen %}
-                <h2><a href="/liste/{{ liste.name }}">{{ liste.name }}</a></h2>
+		{% for stadtteil in stadtteile %}
+                <h2><a href="/stadtteil/{{ stadtteil.name }}">{{ stadtteil.name }}</a></h2>
 		{% endfor %}
+                <h2><a href="/stadtteil/alle">Komplette Liste (Warnung: groß!)</a></h2>
 
+  		<p>Download komplette Liste: <a href="/download/alle?format=csv">csv</a></p>
         </div>
     </div>
 </div>

@@ -1,31 +1,43 @@
-from django.http import HttpResponse, HttpResponseServerError, StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseServerError, StreamingHttpResponse, Http404
 from django.template import loader
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from adr_neu.models import Liste, Stadtteil, Hausnummer
+from adr_neu.models import Stadtteil, Hausnummer
 
 
-def show_listen(request):
-	listen = Liste.objects.all()
+def show_stadtteile(request):
+	stadtteile = Stadtteil.objects.order_by('name').all()
 	return render(
 		request,
 		'adr_neu/index.html',
 		{
-			'listen': listen,
+			'stadtteile': stadtteile,
 		}
 	)
 
-def prepare_adressen(liste, stadtteile=None, list_filter=None):
-	adressen = [] 
-	if stadtteile==None:
-		stadtteile = liste.stadtteile.order_by('name').all()
+def prepare_adressen(stadtteil_name="alle", typ_filter="alle"):
+	if stadtteil_name=="alle":
+		stadtteile = Stadtteil.objects.order_by('name').all()
+	else:
+		stadtteile = [get_object_or_404(Stadtteil, pk=stadtteil_name)]
+	adressen = []
+	if typ_filter.startswith("todo-"):
+		typ_filter = typ_filter[5:]
+		if typ_filter in (Hausnummer.GIS_NEU, Hausnummer.GIS_VERSCHOBEN):
+			ignoriere_status=(Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_VORHANDEN)
+		elif typ_filter==Hausnummer.GIS_GELOESCHT:
+			ignoriere_status=(Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_FEHLT)
+		else:
+			raise Http404("typ_filter %s nicht vorhanden" % typ_filter)
+	else:
+		ignoriere_status=()
+		
 	for stadtteil in stadtteile:
 		l = []
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
-				if (
-				  list_filter=="todo" and 
-				  nummer.status in (Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_VORHANDEN)
-				):
+				if nummer.status in ignoriere_status:
+					continue
+				if typ_filter!="alle" and nummer.gis_status!=typ_filter:
 					continue
 				l.append({'strasse': strasse, 'nummer': nummer})
 		adressen.append([stadtteil, l])
@@ -95,46 +107,36 @@ def do_overpass_update(stadtteile):
 
 	yield "<h3>Update erfolgreich abgeschlossen</h3>\n"
 
-def overpass_update(request, liste_name):
-	liste = get_object_or_404(Liste, pk=liste_name)
-	stadtteile = liste.stadtteile.order_by('name').all()
+def overpass_update(request, stadtteil_name):
+	if stadtteil_name=="alle":
+		stadtteile = Stadtteil.objects.all()
+	else:
+		stadtteile = [get_object_or_404(Stadtteil, pk=stadtteil_name)]
 	return StreamingHttpResponse(do_overpass_update(stadtteile))
 
-def show_liste(request, liste_name):
-	liste = get_object_or_404(Liste, pk=liste_name)
-	adressen = prepare_adressen(liste)
-
+def show_stadtteil(request, stadtteil_name):
+	adressen = prepare_adressen(stadtteil_name)
 	return render(
 		request,
 		'adr_neu/show.html',
 		{
 			'adressen': adressen,
-			'liste_name': liste_name
 		}
 	)
 
-def download_liste(request, liste_name):
-	liste = get_object_or_404(Liste, pk=liste_name)
-
+def download(request, stadtteil_name):
 	if "format" in request.GET.keys():
 		get_format = request.GET["format"]
 	else:
 		get_format = "csv"
 
-	if "filter" in request.GET.keys():
-		get_filter = request.GET["filter"]
+	if "typ" in request.GET.keys():	
+		typ = request.GET["typ"]
 	else:
-		get_filter = None
+		typ = "alle"
+	filename = "hausnummern-la-%s-%s.%s" % (stadtteil_name, typ, get_format)
 
-	if "stadtteil" in request.GET.keys():	
-		get_stadtteil = request.GET["stadtteil"]
-		stadtteile = get_list_or_404(Stadtteil, name=get_stadtteil)
-		filename = "hausnummern-la-%s-%s.%s" % (get_stadtteil, liste_name, get_format)
-	else:
-		stadtteile = None
-		filename = "hausnummern-la-%s.%s" % (liste_name, get_format)
-
-	adressen = prepare_adressen(liste, stadtteile, get_filter)
+	adressen = prepare_adressen(stadtteil_name, typ)
 	
 	if get_format=="csv":
 		response = HttpResponse(content_type='text/csv')

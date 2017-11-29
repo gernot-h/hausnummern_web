@@ -22,7 +22,7 @@ class StrasseAdmin(admin.ModelAdmin):
 
 class StadtteilAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None, {'fields': ['name','liste']})
+		(None, {'fields': ['name']})
 	]
 	inlines = [StrasseInline]
 
