@@ -5,7 +5,10 @@ import csv, codecs
 class Stadtteil(models.Model):
 	name = models.CharField(max_length=30, primary_key=True)
 	def __str__(self):
-		return self.name
+		if self.name=="":
+			return "(leer)"
+		else:
+			return self.name
 	def hausnummern_count(self):
 		return Hausnummer.objects.filter(strasse__stadtteil__name=self.name).count()
 

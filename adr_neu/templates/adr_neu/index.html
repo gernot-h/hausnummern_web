@@ -13,7 +13,7 @@
             <h1>Hausnummern Landshut</h1>
                 {% csrf_token %}
 		{% for stadtteil in stadtteile %}
-                <h2><a href="/stadtteil/{{ stadtteil.name }}">{{ stadtteil.name }}</a> ({{ stadtteil.hausnummern_count }} Einträge)</h2>
+                <h2><a href="/stadtteil/{{ stadtteil.name }}">{{ stadtteil }}</a> ({{ stadtteil.hausnummern_count }} Einträge)</h2>
 		{% endfor %}
                 <h2><a href="/stadtteil/alle">Komplette Liste (Warnung: groß!)</a></h2>
 
