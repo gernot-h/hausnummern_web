@@ -6,6 +6,8 @@ class Stadtteil(models.Model):
 	name = models.CharField(max_length=30, primary_key=True)
 	def __str__(self):
 		return self.name
+	def hausnummern_count(self):
+		return Hausnummer.objects.filter(strasse__stadtteil__name=self.name).count()
 
 class Strasse(models.Model):
 	name = models.CharField(max_length=100)
@@ -15,8 +17,8 @@ class Strasse(models.Model):
 	stadtteil = models.ForeignKey(Stadtteil, related_name='strassen')
 	def __str__(self):
 		return self.name
-	def hausnummern(self):
-		return len(self.nummern.all())
+	def hausnummern_count(self):
+		return self.nummern.all().count()
 
 class Hausnummer(models.Model):
 	nummer = models.CharField(max_length=10)

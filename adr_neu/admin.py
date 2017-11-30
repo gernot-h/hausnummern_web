@@ -17,13 +17,14 @@ class StrasseAdmin(admin.ModelAdmin):
 	]
 	list_filter = ['stadtteil']
 	search_fields = ['name']
-	list_display = ['name','hausnummern','stadtteil']
+	list_display = ['name','hausnummern_count','stadtteil']
 	inlines = [HausnummerInline]
 
 class StadtteilAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None, {'fields': ['name']})
 	]
+	list_display = ['name', 'hausnummern_count']
 	inlines = [StrasseInline]
 
 admin.site.register(Stadtteil, StadtteilAdmin)
