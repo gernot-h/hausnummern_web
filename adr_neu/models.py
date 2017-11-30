@@ -4,6 +4,8 @@ import csv, codecs
 
 class Stadtteil(models.Model):
 	name = models.CharField(max_length=30, primary_key=True)
+	class Meta:
+		verbose_name_plural = "Stadtteile"
 	def __str__(self):
 		if self.name=="":
 			return "(leer)"
@@ -18,6 +20,8 @@ class Strasse(models.Model):
 	# aber nachdem ein ManyToMany-Feld im Admin-Frontend Muehe macht, ist das
 	# bisschen Redundanz hier ok
 	stadtteil = models.ForeignKey(Stadtteil, related_name='strassen')
+	class Meta:
+		verbose_name_plural = "Strassen"
 	def __str__(self):
 		return self.name
 	def hausnummern_count(self):
@@ -57,7 +61,8 @@ class Hausnummer(models.Model):
 			(GIS_GELOESCHT, "gelöscht"),
 		)
 	)
-	
+	class Meta:
+		verbose_name_plural = "Hausnummern"
 	def __str__(self):
 		return str(self.strasse)+" "+self.nummer
 
@@ -71,6 +76,8 @@ class Liste(models.Model):
 		)
 	) 
 	import_file = models.FileField()
+	class Meta:
+		verbose_name_plural = "Listen"
 
 	def save(self, *args, **kwargs):
 		print ("import file uploaded", self.import_file.name)

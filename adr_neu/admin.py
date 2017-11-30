@@ -7,6 +7,10 @@ class HausnummerInline(admin.TabularInline):
 	model = Hausnummer
 	extra = 5
 
+class HausnummerAdmin(admin.ModelAdmin):
+	list_filter = ['strasse__stadtteil']
+	search_fields = ['strasse__name', 'nummer']
+
 class StrasseInline(admin.TabularInline):
 	model = Strasse
 	extra = 3
@@ -30,4 +34,4 @@ class StadtteilAdmin(admin.ModelAdmin):
 admin.site.register(Stadtteil, StadtteilAdmin)
 admin.site.register(Strasse, StrasseAdmin)
 #admin.site.register(Strasse)
-admin.site.register(Hausnummer)
+admin.site.register(Hausnummer, HausnummerAdmin)
