@@ -53,7 +53,14 @@ def do_overpass_update(stadtteile):
 		l = {}
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
+				if nummer.nummer=="":
+					yield "Abfrage nach Straße ohne Nr. noch nicht implementiert: "+strasse.name+"</br>"
+					continue
 				l[(strasse.name, nummer.nummer)] = nummer
+				if nummer.status!=Hausnummer.STATUS_ERLEDIGT:
+					# erstmal alle als fehlend markieren
+					nummer.status=Hausnummer.STATUS_FEHLT
+					nummer.save()
 
 		yield "Anfrage: %i Adressen<br/>\n" % len(l) 
 		params = ({ "data": t.render({'adressen': l}) })
@@ -78,6 +85,8 @@ def do_overpass_update(stadtteile):
 				osm_lat = result["lat"]
 				osm_lon = result["lon"]
 			strasse = result["tags"]["addr:street"]
+			if "addr:housenumber" not in result["tags"].keys():
+				continue
 			nummer = result["tags"]["addr:housenumber"]
 			if (strasse, nummer) in osm_koords.keys():
 				osm_koords[(strasse, nummer)].append((osm_lat, osm_lon))
