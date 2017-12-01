@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load l10n %}
 <html>
 <head lang="de">
     <meta charset="UTF-8">
     <title>Hausnummern Landshut</title>
     <link rel="stylesheet" href="{% static 'adr_neu/style.css' %}" type="text/css" />
 </head>
+<style type="text/css">
+    .gis-DEL { background-color: red; }
+    .gis-CHNG { background-color: yellow; }
+    .gis-NEW { background-color: green; }
+    .osm-VORH { background-color: red; }
+    .osm-FEHLT { background-color: red; }
+    .osm-POS { background-color: yellow; }
+    .osm-OSM_VERT { background-color: yellow; }
+    .osm-OK { background-color: lime; }
+    .osm-OK_MANU { background-color: lime; }
+</style>
 <body>
 <div style="position: relative; left: -50%; float: right; overflow: visible; margin: 2em 0;">
     <div style="position: relative; left: 50%;">
@@ -34,8 +46,7 @@
                 <table border>
                     <tr>
                         <th style="vertical-align: bottom;"><label for="Nummer">Adresse</label></th>
-                        <th style="vertical-align: bottom;"><label for="Nummer">Länge</label></th>
-                        <th style="vertical-align: bottom;"><label for="Nummer">Breite</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Koordinaten</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">im GIS:</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">in OSM?</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">Overpass</label></th>
@@ -44,10 +55,9 @@
                     {% for nummer in nummern %}
 		    <tr>
                         <td>{{ nummer.nummer }}</td>
-                        <td>{{ nummer.nummer.laenge }}</td>
-                        <td>{{ nummer.nummer.breite }}</td>
-                        <td>{{ nummer.nummer.get_gis_status_display }}</td>
-                        <td>{{ nummer.nummer.get_status_display }}</td>
+                        <td><a href="http://www.openstreetmap.org/?mlat={{ nummer.nummer.breite|unlocalize }}&mlon={{ nummer.nummer.laenge|unlocalize }}#map=18/{{ nummer.nummer.breite|unlocalize }}/{{ nummer.nummer.laenge|unlocalize }}">{{ nummer.nummer.laenge }} {{ nummer.nummer.breite }}</a></td>
+                        <td class="gis-{{ nummer.nummer.gis_status }}">{{ nummer.nummer.get_gis_status_display }}</td>
+                        <td class="osm-{{ nummer.nummer.status }}">{{ nummer.nummer.get_status_display }}</td>
                         <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
 		    </tr>
                     {% endfor %}

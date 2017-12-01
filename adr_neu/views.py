@@ -22,15 +22,12 @@ def prepare_adressen(stadtteil_name="alle", typ_filter="alle"):
 	adressen = []
 	if typ_filter.startswith("todo-"):
 		typ_filter = typ_filter[5:]
-		if typ_filter in (Hausnummer.GIS_NEU, Hausnummer.GIS_VERSCHOBEN):
-			ignoriere_status=(Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_VORHANDEN)
-		elif typ_filter==Hausnummer.GIS_GELOESCHT:
-			ignoriere_status=(Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_FEHLT)
-		else:
-			raise Http404("typ_filter %s nicht vorhanden" % typ_filter)
+		ignoriere_status=(Hausnummer.STATUS_OK_AUTO, Hausnummer.STATUS_OK_MANU)
 	else:
 		ignoriere_status=()
 		
+	if typ_filter not in ("alle", Hausnummer.GIS_NEU, Hausnummer.GIS_VERSCHOBEN, Hausnummer.GIS_GELOESCHT):
+		raise Http404("typ_filter %s nicht vorhanden" % typ_filter)
 	for stadtteil in stadtteile:
 		l = []
 		for strasse in stadtteil.strassen.order_by('name').all():
@@ -57,9 +54,12 @@ def do_overpass_update(stadtteile):
 					yield "Abfrage nach Straße ohne Nr. noch nicht implementiert: "+strasse.name+"</br>"
 					continue
 				l[(strasse.name, nummer.nummer)] = nummer
-				if nummer.status!=Hausnummer.STATUS_ERLEDIGT:
+				if nummer.status!=Hausnummer.STATUS_OK_MANU:
 					# erstmal alle als fehlend markieren
-					nummer.status=Hausnummer.STATUS_FEHLT
+					if nummer.gis_status==Hausnummer.GIS_GELOESCHT:
+						nummer.status=Hausnummer.STATUS_OK_AUTO
+					else:
+						nummer.status=Hausnummer.STATUS_FEHLT
 					nummer.save()
 
 		yield "Anfrage: %i Adressen<br/>\n" % len(l) 
@@ -93,14 +93,14 @@ def do_overpass_update(stadtteile):
 				if (abs(osm_lat-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
 				    abs(osm_lon-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
 					yield "OSM-Inkonsistenz: verstreute Objekte für %s %s!<br/>" % (strasse, nummer)
-					if l[(strasse, nummer)]!=Hausnummer.STATUS_ERLEDIGT:
+					if l[(strasse, nummer)]!=Hausnummer.STATUS_OK_MANU:
 						l[(strasse, nummer)].status=Hausnummer.STATUS_OSM_VERT
 						l[(strasse, nummer)].save()
 			else:
 				osm_koords[(strasse, nummer)]=[(osm_lat, osm_lon)]
 				
 		for (strasse, nummer) in osm_koords.keys():
-			if l[(strasse, nummer)].status in (Hausnummer.STATUS_ERLEDIGT, Hausnummer.STATUS_OSM_VERT):
+			if l[(strasse, nummer)].status in (Hausnummer.STATUS_OK_MANU, Hausnummer.STATUS_OSM_VERT):
 				continue
 			anzahl = len(osm_koords[(strasse, nummer)])
 			if anzahl>1:
@@ -110,8 +110,11 @@ def do_overpass_update(stadtteile):
 			if (abs(l[(strasse, nummer)].breite-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
 			    abs(l[(strasse, nummer)].laenge-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
 				l[(strasse, nummer)].status=Hausnummer.STATUS_POS_DIFF
-			else:
+			elif l[(strasse, nummer)].gis_status==Hausnummer.GIS_GELOESCHT:
 				l[(strasse, nummer)].status=Hausnummer.STATUS_VORHANDEN
+			else:
+				l[(strasse, nummer)].status=Hausnummer.STATUS_OK_AUTO
+				
 			l[(strasse, nummer)].save()
 
 	yield "<h3>Update erfolgreich abgeschlossen</h3>\n"

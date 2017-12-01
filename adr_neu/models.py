@@ -33,9 +33,10 @@ class Hausnummer(models.Model):
 	laenge = models.FloatField()
 	breite = models.FloatField()
 	STATUS_UNBEKANNT = ""
-	STATUS_ERLEDIGT = "ERL"
 	STATUS_FEHLT = "FEHLT"
 	STATUS_VORHANDEN = "VORH"
+	STATUS_OK_AUTO = "OK"
+	STATUS_OK_MANU = "OK_MANU"
 	STATUS_POS_DIFF = "POS"
 	STATUS_OSM_VERT = "OSM_VERT"
 	status = models.CharField(
@@ -45,7 +46,8 @@ class Hausnummer(models.Model):
 			(STATUS_UNBEKANNT, "??"),
 			(STATUS_FEHLT, "fehlt in OSM"),
 			(STATUS_VORHANDEN, "vorhanden"),
-			(STATUS_ERLEDIGT, "erledigt"),
+			(STATUS_OK_AUTO, "ok (autom.)"),
+			(STATUS_OK_MANU, "ok (manuell)"),
 			(STATUS_POS_DIFF, "Position abweichend"),
 			(STATUS_OSM_VERT, "OSM-Objekte verstreut!"),
 		)
