@@ -1,6 +1,6 @@
 [out:json][timeout:25];
-{# area of Landshut #}
-area(2663882467)->.searchArea;
+{# area of Landshut: relation 62484+3600000000 = Overpass Area ID, see http://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL #}
+area(3600062484)->.searchArea;
 (
   {% for strasse, nummer in adressen.keys %}
   node["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
