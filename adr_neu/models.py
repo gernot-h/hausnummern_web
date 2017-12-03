@@ -29,7 +29,7 @@ class Strasse(models.Model):
 		return self.nummern.all().count()
 
 class Hausnummer(models.Model):
-	nummer = models.CharField(max_length=10)
+	nummer = models.CharField(max_length=10, blank=True)
 	strasse = models.ForeignKey(Strasse, related_name='nummern')
 	laenge = models.FloatField()
 	breite = models.FloatField()
