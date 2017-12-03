@@ -10,6 +10,7 @@ class HausnummerInline(admin.TabularInline):
 class HausnummerAdmin(admin.ModelAdmin):
 	list_filter = ['strasse__stadtteil']
 	search_fields = ['strasse__name', 'nummer']
+	fields = ('strasse', 'nummer',('laenge', 'breite'), ('status', 'kommentar'),'gis_status' )
 
 class StrasseInline(admin.TabularInline):
 	model = Strasse

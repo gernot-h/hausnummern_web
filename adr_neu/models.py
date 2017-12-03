@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 import csv, codecs
 
 
@@ -52,6 +53,7 @@ class Hausnummer(models.Model):
 			(STATUS_OSM_VERT, "OSM-Objekte verstreut!"),
 		)
 	)
+	kommentar = models.CharField(max_length=400, default="", blank=True)
 	GIS_NEU = "NEW"
 	GIS_VERSCHOBEN = "CHNG"
 	GIS_GELOESCHT = "DEL"
@@ -67,6 +69,9 @@ class Hausnummer(models.Model):
 		verbose_name_plural = "Hausnummern"
 	def __str__(self):
 		return str(self.strasse)+" "+self.nummer
+	def clean(self):
+		if self.status == Hausnummer.STATUS_OK_MANU and self.kommentar=="":
+			raise ValidationError({'kommentar': 'bei OK_MANU muss ein Kommentar eingegeben werden'})
 
 class Liste(models.Model):
 	typ = models.CharField(
