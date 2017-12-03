@@ -36,7 +36,7 @@ def prepare_adressen(stadtteil_name="alle", typ_filter="alle"):
 					continue
 				if typ_filter!="alle" and nummer.gis_status!=typ_filter:
 					continue
-				l.append({'strasse': strasse, 'nummer': nummer})
+				l.append({'strasse': strasse, 'nummer': nummer, 'josm': {'l': nummer.laenge-0.0015, 'r': nummer.laenge+0.0015, 't': nummer.breite+0.001, 'b': nummer.breite-0.001}})
 		adressen.append([stadtteil, l])
 	return adressen
 
