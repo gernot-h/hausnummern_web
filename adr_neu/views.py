@@ -93,7 +93,7 @@ def do_overpass_update(stadtteile):
 				if (abs(osm_lat-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
 				    abs(osm_lon-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
 					yield "OSM-Inkonsistenz: verstreute Objekte für %s %s!<br/>" % (strasse, nummer)
-					if l[(strasse, nummer)]!=Hausnummer.STATUS_OK_MANU:
+					if l[(strasse, nummer)].status!=Hausnummer.STATUS_OK_MANU:
 						l[(strasse, nummer)].status=Hausnummer.STATUS_OSM_VERT
 						l[(strasse, nummer)].save()
 			else:
