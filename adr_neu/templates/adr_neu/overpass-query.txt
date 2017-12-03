@@ -3,9 +3,13 @@
 area(3600062484)->.searchArea;
 (
   {% for strasse, nummer in adressen.keys %}
+  {% if nummer == "" %}
+  way["name"="{{ strasse }}"](area.searchArea);
+  {% else %}
   node["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
   way["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
   rel["addr:housenumber"="{{ nummer }}"]["addr:street"="{{ strasse }}"](area.searchArea);
+  {% endif %}
   {% endfor %}
 );
 out center;

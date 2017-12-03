@@ -50,9 +50,6 @@ def do_overpass_update(stadtteile):
 		l = {}
 		for strasse in stadtteil.strassen.order_by('name').all():
 			for nummer in strasse.nummern.order_by('nummer').all():
-				if nummer.nummer=="":
-					yield "Abfrage nach Straße ohne Nr. noch nicht implementiert: "+strasse.name+"</br>"
-					continue
 				l[(strasse.name, nummer.nummer)] = nummer
 				if nummer.status!=Hausnummer.STATUS_OK_MANU:
 					# erstmal alle als fehlend markieren
@@ -84,12 +81,19 @@ def do_overpass_update(stadtteile):
 			else:
 				osm_lat = result["lat"]
 				osm_lon = result["lon"]
-			strasse = result["tags"]["addr:street"]
-			if "addr:housenumber" not in result["tags"].keys():
-				continue
-			nummer = result["tags"]["addr:housenumber"]
+			if "addr:street" not in result["tags"].keys():
+				# Abfrage nach Strasse ohne Nr.
+				strasse = result["tags"]["name"]
+				nummer = ""
+			else:
+				strasse = result["tags"]["addr:street"]
+				if "addr:housenumber" not in result["tags"].keys():
+					continue
+				nummer = result["tags"]["addr:housenumber"]
 			if (strasse, nummer) in osm_koords.keys():
 				osm_koords[(strasse, nummer)].append((osm_lat, osm_lon))
+				if nummer=="":
+					continue
 				if (abs(osm_lat-osm_koords[(strasse, nummer)][0][0])>0.00013 or 
 				    abs(osm_lon-osm_koords[(strasse, nummer)][0][1]>0.0002)): # ca. 15m
 					yield "OSM-Inkonsistenz: verstreute Objekte für %s %s!<br/>" % (strasse, nummer)
