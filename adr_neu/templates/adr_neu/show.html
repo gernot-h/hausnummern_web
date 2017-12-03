@@ -58,7 +58,7 @@
                         <td><a href="http://www.openstreetmap.org/?mlat={{ nummer.nummer.breite|unlocalize }}&mlon={{ nummer.nummer.laenge|unlocalize }}#map=18/{{ nummer.nummer.breite|unlocalize }}/{{ nummer.nummer.laenge|unlocalize }}">{{ nummer.nummer.laenge }} {{ nummer.nummer.breite }}</a></td>
                         <td class="gis-{{ nummer.nummer.gis_status }}">{{ nummer.nummer.get_gis_status_display }}</td>
                         <td class="osm-{{ nummer.nummer.status }}">{{ nummer.nummer.get_status_display }}</td>
-                        <td><a href="http://overpass-turbo.eu/?R=&w=%22addr%3Ahousenumber%22%3D%22{{ nummer.nummer.nummer|urlencode }}%22+and+%22addr%3Astreet%22%3D%22{{ nummer.strasse|urlencode }}%22+in+Landshut">Overpass</a></td>
+                        <td><a href="http://overpass-turbo.eu/?&Q=area(3600062484)-%3e.s%3b%0d%0a(%0d%0a++node%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++way%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++rel%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a)%3b%0d%0aout+body%3b%0d%0a%3e%3b%0d%0aout+skel+qt%3b&R">Overpass</a></td>
 		    </tr>
                     {% endfor %}
                 </table>
