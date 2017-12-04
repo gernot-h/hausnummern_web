@@ -1,4 +1,5 @@
 [out:json][timeout:25];
+{# csv: [out:csv(::id,"addr:street","addr:housenumber",::type,::lat,::lon,::user,note,fixme,::timestamp;false;";")][timeout:25]; #}
 {# area of Landshut: relation 62484+3600000000 = Overpass Area ID, see http://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL #}
 area(3600062484)->.searchArea;
 (
