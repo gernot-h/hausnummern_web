@@ -6,6 +6,14 @@
     <meta charset="UTF-8">
     <title>Hausnummern Landshut: Stadtteil-Liste</title>
     <link rel="stylesheet" href="{% static 'adr_neu/style.css' %}" type="text/css" />
+<script type='text/javascript'>
+function josm( url )
+{
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.send();
+}
+</script>
 </head>
 <style type="text/css">
     .gis-DEL { background-color: red; }
@@ -59,7 +67,7 @@
                         <td class="gis-{{ nummer.nummer.gis_status }}">{{ nummer.nummer.get_gis_status_display }}</td>
                         <td class="osm-{{ nummer.nummer.status }}">{{ nummer.nummer.get_status_display }}</td>
                         <td><a href="http://overpass-turbo.eu/?&Q=area(3600062484)-%3e.s%3b%0d%0a(%0d%0a++node%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++way%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++rel%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a)%3b%0d%0aout+body%3b%0d%0a%3e%3b%0d%0aout+skel+qt%3b&R">Overpass</a>
-			   <a href="http://localhost:8111/load_and_zoom?left={{ nummer.josm.l|unlocalize }}&right={{ nummer.josm.r|unlocalize }}&top={{ nummer.josm.t|unlocalize }}&bottom={{ nummer.josm.b|unlocalize }}">JOSM</a>
+			   <a href="#{{ nummer.nummer.id }}" onclick="javascript:josm('http://localhost:8111/load_and_zoom?left={{ nummer.josm.l|unlocalize }}&right={{ nummer.josm.r|unlocalize }}&top={{ nummer.josm.t|unlocalize }}&bottom={{ nummer.josm.b|unlocalize }}')">JOSM</a>
 			   <a href="/admin/adr_neu/hausnummer/{{ nummer.nummer.id }}/change/">Admin</a></td>
 		    </tr>
                     {% endfor %}
