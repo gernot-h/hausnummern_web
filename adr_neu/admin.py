@@ -27,7 +27,7 @@ class StrasseAdmin(admin.ModelAdmin):
 
 class StadtteilAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None, {'fields': ['name']})
+		(None, {'fields': ['name', 'bearbeiter']})
 	]
 	list_display = ['name', 'hausnummern_count']
 	inlines = [StrasseInline]

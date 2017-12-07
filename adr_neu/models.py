@@ -5,6 +5,7 @@ import csv, codecs
 
 class Stadtteil(models.Model):
 	name = models.CharField(max_length=30, primary_key=True)
+	bearbeiter = models.CharField(max_length=30, default="", blank=True)
 	class Meta:
 		verbose_name_plural = "Stadtteile"
 	def __str__(self):
@@ -14,6 +15,10 @@ class Stadtteil(models.Model):
 			return self.name
 	def hausnummern_count(self):
 		return Hausnummer.objects.filter(strasse__stadtteil__name=self.name).count()
+	def erledigt_prozent(self):
+		nummern = Hausnummer.objects.filter(strasse__stadtteil__name=self.name)
+		ok = nummern.filter(status__in=(Hausnummer.STATUS_OK_AUTO, Hausnummer.STATUS_OK_MANU))
+		return (ok.count()*100 / nummern.count())
 
 class Strasse(models.Model):
 	name = models.CharField(max_length=100)
