@@ -25,6 +25,7 @@ function josm( url )
     .osm-OSM_VERT { background-color: yellow; }
     .osm-OK { background-color: lime; }
     .osm-OK_MANU { background-color: lime; }
+    .kommentar { font-size: 77%; }
 </style>
 <body>
 <div style="position: relative; left: -50%; float: right; overflow: visible; margin: 2em 0;">
@@ -58,6 +59,7 @@ function josm( url )
                         <th style="vertical-align: bottom;"><label for="Nummer">im GIS:</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">in OSM?</label></th>
                         <th style="vertical-align: bottom;"><label for="Nummer">Tools</label></th>
+                        <th style="vertical-align: bottom;"><label for="Nummer">Kommentar</label></th>
                     </tr>
 
                     {% for nummer in nummern %}
@@ -68,7 +70,9 @@ function josm( url )
                         <td class="osm-{{ nummer.nummer.status }}">{{ nummer.nummer.get_status_display }}</td>
                         <td><a href="http://overpass-turbo.eu/?&Q=area(3600062484)-%3e.s%3b%0d%0a(%0d%0a++node%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++way%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a++rel%5b%22addr%3ahousenumber%22%3d%22{{ nummer.nummer.nummer|urlencode }}%22%5d%5b%22addr%3astreet%22%3d%22{{ nummer.strasse|urlencode }}%22%5d(area.s)%3b%0d%0a)%3b%0d%0aout+body%3b%0d%0a%3e%3b%0d%0aout+skel+qt%3b&R">Overpass</a>
 			   <a href="#{{ nummer.nummer.id }}" onclick="javascript:josm('http://localhost:8111/load_and_zoom?left={{ nummer.josm.l|unlocalize }}&right={{ nummer.josm.r|unlocalize }}&top={{ nummer.josm.t|unlocalize }}&bottom={{ nummer.josm.b|unlocalize }}')">JOSM</a>
-			   <a href="/admin/adr_neu/hausnummer/{{ nummer.nummer.id }}/change/">Admin</a></td>
+			   <a href="/admin/adr_neu/hausnummer/{{ nummer.nummer.id }}/change/">Admin</a>
+			</td>
+                        <td class="kommentar">{{ nummer.nummer.kommentar }}</td>
 		    </tr>
                     {% endfor %}
                 </table>
