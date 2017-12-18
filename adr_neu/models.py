@@ -54,7 +54,7 @@ class Hausnummer(models.Model):
 			(STATUS_VORHANDEN, "vorhanden"),
 			(STATUS_OK_AUTO, "ok (autom.)"),
 			(STATUS_OK_MANU, "ok (manuell)"),
-			(STATUS_POS_DIFF, "Position abweichend"),
+			(STATUS_POS_DIFF, "Pos. abweichend"),
 			(STATUS_OSM_VERT, "OSM-Objekte verstreut!"),
 		)
 	)
